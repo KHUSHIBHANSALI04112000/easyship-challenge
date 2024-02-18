@@ -1,0 +1,7 @@
+{
+  "meta": {
+    "code": 4004,
+    "message": "Tracking does not exist.",
+    "type": "BadRequest"
+  }
+}
