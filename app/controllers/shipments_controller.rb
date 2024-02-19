@@ -1,9 +1,4 @@
 class ShipmentsController < ApplicationController
-  def index
-    @shipments = Shipment.all
-  end
-end
-class ShipmentsController < ApplicationController
   before_action :get_company, :get_shipment, only: [:show]
 
   def index
