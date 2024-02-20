@@ -1,14 +1,15 @@
 require 'shipment_helper'
 class ShipmentsController < ApplicationController
   include ShipmentHelper
-  before_action :get_company, :get_shipment, only: [:show]
+  before_action :get_company, only: [:show, :search]
+  before_action :get_shipment, only: [:show]
+  before_action :get_company_shipments, only: [:search]
 
   def index
     @shipments = Shipment.all
   end
 
   def show
-    byebug
     result = transform_shipment_data(@shipment)
     render json: result
   end
@@ -41,19 +42,33 @@ class ShipmentsController < ApplicationController
           message: "Tracking does not exist.",
           type: "BadRequest"
         }
-      }, status: :not_found
+      }, status: 404
     end
   end
+
+  def search
+    company_shipments = @company.shipments
+
+    # Search shipments by number of items
+    if params[:shipment_size].present?
+      shipments = Shipment.where(company_id: params[:company_id])
+                    .joins(:shipment_items)
+                    .group('shipments.id')
+                    .having('COUNT(shipment_items.id) = ?', params[:shipment_size].to_i)
+                    .select('shipments.*')
+    end
+
+    render json: shipments
+  end
+
 
   private
 
   def get_company
-    byebug
     if params[:company_id]
       begin
         @company = Company.find(params[:company_id])
       rescue ActiveRecord::RecordNotFound
-        byebug
         render json: { error: "Company with ID #{params[:company_id]} not found" }, status: 404
       end
     end
@@ -66,5 +81,14 @@ class ShipmentsController < ApplicationController
       @shipment = Shipment.find_by(id: params[:id])
     end
     render json: { error: 'Shipment not found' }, status: 404 unless @shipment
+  end
+
+  def get_company_shipments
+    if @company
+      @shipments = @company.shipments.where(company_id: params[:company_id])
+    else
+      @shipments = Shipment.find_by(id: params[:id])
+    end
+    render json: { error: 'Shipment not found' }, status: :not_found unless @shipments
   end
 end
