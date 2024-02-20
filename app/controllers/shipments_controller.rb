@@ -49,7 +49,6 @@ class ShipmentsController < ApplicationController
   def search
     company_shipments = @company.shipments
 
-    # Search shipments by number of items
     if params[:shipment_size].present?
       shipments = Shipment.where(company_id: params[:company_id])
                     .joins(:shipment_items)
