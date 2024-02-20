@@ -1,7 +1,9 @@
 require 'shipment_helper'
 class ShipmentsController < ApplicationController
   include ShipmentHelper
-  before_action :get_company, :get_shipment, only: [:show]
+  before_action :get_company, only: [:show, :search]
+  before_action :get_shipment, only: [:show]
+  before_action :get_company_shipments, only: [:search]
 
   def index
     @shipments = Shipment.all
@@ -45,6 +47,22 @@ class ShipmentsController < ApplicationController
     end
   end
 
+  def search
+    byebug
+    company_shipments = @company.shipments
+
+    # Search shipments by number of items
+    if params[:shipment_size].present?
+      shipments = Shipment.where(company_id: params[:company_id])
+                    .joins(:shipment_items)
+                    .group('shipments.id')
+                    .having('COUNT(shipment_items.id) = ?', params[:shipment_size].to_i)
+                    .select('shipments.*')
+    end
+
+    render json: shipments
+  end
+
   private
 
   def get_company
@@ -66,5 +84,15 @@ class ShipmentsController < ApplicationController
       @shipment = Shipment.find_by(id: params[:id])
     end
     render json: { error: 'Shipment not found' }, status: 404 unless @shipment
+  end
+
+  def get_company_shipments
+    byebug
+    if @company
+      @shipments = @company.shipments.where(company_id: params[:company_id])
+    else
+      @shipments = Shipment.find_by(id: params[:id])
+    end
+    render json: { error: 'Shipment not found' }, status: 404 unless @shipments
   end
 end
