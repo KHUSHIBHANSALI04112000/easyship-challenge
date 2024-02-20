@@ -1,10 +1,12 @@
 source 'https://rubygems.org'
 
-ruby '2.6.10'
+ruby '3.0.0'
 gem 'rails', '~> 6.1.3.1'
 gem 'sqlite3'
 gem 'puma'
 gem 'jbuilder'
+gem 'webmock'
+gem 'httparty'
 
 group :development, :test do
   gem 'byebug', platform: :mri
