@@ -1,4 +1,6 @@
+require 'shipment_helper'
 class ShipmentsController < ApplicationController
+  include ShipmentHelper
   before_action :get_company, :get_shipment, only: [:show]
 
   def index
@@ -6,14 +8,23 @@ class ShipmentsController < ApplicationController
   end
 
   def show
-    grouped_shipment_items = @shipment.shipments_ordered_by_items_count(params[:items_order] || 'desc')
-    render json: { company: @company, shipment: @shipment, grouped_shipment_items: grouped_shipment_items }
+    byebug
+    result = transform_shipment_data(@shipment)
+    render json: result
   end
 
   private
 
   def get_company
-    @company = Company.find(params[:company_id])
+    byebug
+    if params[:company_id]
+      begin
+        @company = Company.find(params[:company_id])
+      rescue ActiveRecord::RecordNotFound
+        byebug
+        render json: { error: "Company with ID #{params[:company_id]} not found" }, status: :not_found
+      end
+    end
   end
 
   def get_shipment
