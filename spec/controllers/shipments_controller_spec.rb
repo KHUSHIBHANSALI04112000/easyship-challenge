@@ -1,9 +1,9 @@
 require 'rails_helper'
 
 RSpec.describe ShipmentsController, type: :controller do
-  describe 'GET #show' do
-    let!(:company) { Company.create(name: "Test Company") }
-    let!(:shipment) { Shipment.create(company: company, destination_country: "USA", origin_country: "HKG") }
+  describe 'GET API for show method' do
+    let(:company) { create(:company) }
+    let(:shipment) { create(:shipment, company: company, destination_country: "USA", origin_country: "HKG") }
 
     context 'when shipment exists' do
       it 'returns the shipment details' do

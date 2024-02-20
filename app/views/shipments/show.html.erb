@@ -1,0 +1,15 @@
+<h1>Shipment Details</h1>
+<p><strong>Shipment id:</strong> <%= @shipment.id %></p>
+<p><strong>Tracking Number:</strong> <%= @shipment.tracking_number %></p>
+<p><strong>Destination Country:</strong> <%= @shipment.destination_country %></p>
+
+<h2>Items in the Shipment: </h2>
+
+<ul>
+  <% @shipment.shipment_items.each do |item| %>
+    <li>
+      <strong>Description:</strong> <%= item.description %><br>
+      <strong>Weight:</strong> <%= item.weight %><br>
+    </li>
+  <% end %>
+</ul>
