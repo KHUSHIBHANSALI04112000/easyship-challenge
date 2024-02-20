@@ -22,7 +22,7 @@ class ShipmentsController < ApplicationController
         @company = Company.find(params[:company_id])
       rescue ActiveRecord::RecordNotFound
         byebug
-        render json: { error: "Company with ID #{params[:company_id]} not found" }, status: :not_found
+        render json: { error: "Company with ID #{params[:company_id]} not found" }, status: 404
       end
     end
   end
@@ -33,6 +33,6 @@ class ShipmentsController < ApplicationController
     else
       @shipment = Shipment.find_by(id: params[:id])
     end
-    render json: { error: 'Shipment not found' }, status: :not_found unless @shipment
+    render json: { error: 'Shipment not found' }, status: 404 unless @shipment
   end
 end
