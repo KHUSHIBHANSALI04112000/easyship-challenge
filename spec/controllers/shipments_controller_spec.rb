@@ -89,7 +89,7 @@ RSpec.describe ShipmentsController, type: :controller do
 
       it 'returns shipments with the specified size' do
         get :search, params: { company_id: @company2.id, shipment_size: 1 }
-        expect(JSON.parse(response.body).size).to eq(2)
+        expect(JSON.parse(response.body)["shipments"].size).to eq(2)
       end
     end
   end

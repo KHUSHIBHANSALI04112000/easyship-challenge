@@ -55,7 +55,14 @@ class ShipmentsController < ApplicationController
                     .select('shipments.*')
     end
 
-    render json: shipments
+    shipments_hash = {}
+    shipment_items_collection= []
+    shipments.each  do |shipment|
+      shipment_items_collection <<   shipment_data(shipment)
+    end
+    shipments_hash["shipments"] = shipment_items_collection
+
+    render json: shipments_hash
   end
 
 
