@@ -13,12 +13,10 @@ class ShipmentsController < ApplicationController
   end
 
   def tracking
-    company_id = params[:company_id]
-    shipment_id = params[:id]
     api_key = 'dummy_key'
-  
+    tracking_id = Shipment.find_by(id: params[:id].to_i).tracking_number
     response = HTTParty.get(
-      "https://api.aftership.com/v4/trackings/#{shipment_id}",
+      "https://api.aftership.com/tracking/2024-01/trackings/#{tracking_id}",
       headers: {
         'Content-Type' => 'application/json',
         'aftership-api-key' => api_key
