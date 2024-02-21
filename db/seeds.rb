@@ -18,7 +18,7 @@ company = Company.create!(name: 'New Co')
   )
 
   20.times do
-    ShipmentItem.create(
+    shipment.shipment_items.create(
       description: %w(iPhone iPad Watch iMac MacBook Mouse Keyboard).sample,
       weight: (1..5).to_a.sample,
       shipment_id: shipment.id
