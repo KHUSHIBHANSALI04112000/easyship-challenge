@@ -39,7 +39,8 @@ RSpec.describe ShipmentsController, type: :controller do
 
   describe 'GET tracking information' do
     it 'returns tracking information if details available' do
-      stub_request(:get, "https://api.aftership.com/v4/trackings/#{shipment.id}")
+      tracking_id = shipment.tracking_number
+      stub_request(:get, "https://api.aftership.com/tracking/2024-01/trackings/#{tracking_id}")
         .to_return(body: File.read('spec/fixtures/aftership/get_success_response.json'), status: 200)
 
       get :tracking, params: { company_id: company.id, id: shipment.id }
@@ -59,7 +60,8 @@ RSpec.describe ShipmentsController, type: :controller do
     end
 
     it 'returns an error message if tracking details are not available' do
-      stub_request(:get, "https://api.aftership.com/v4/trackings/#{shipment.id}")
+      tracking_id = shipment.tracking_number
+      stub_request(:get, "https://api.aftership.com/tracking/2024-01/trackings/#{tracking_id}")
         .to_return(body: File.read('spec/fixtures/aftership/get_failure_response.json'), status: 404)
 
       get :tracking, params: { company_id: company.id, id: shipment.id }
