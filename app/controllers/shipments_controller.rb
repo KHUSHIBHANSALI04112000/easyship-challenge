@@ -8,7 +8,6 @@ class ShipmentsController < ApplicationController
   end
 
   def show
-    byebug
     result = transform_shipment_data(@shipment)
     render json: result
   end
@@ -16,7 +15,6 @@ class ShipmentsController < ApplicationController
   private
 
   def get_company
-    byebug
     if params[:company_id]
       begin
         @company = Company.find(params[:company_id])
