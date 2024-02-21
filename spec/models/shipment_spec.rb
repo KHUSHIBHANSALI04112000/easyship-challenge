@@ -13,7 +13,6 @@ RSpec.describe Shipment, type: :model do
     end
 
     it 'should return  shipments ordered by item count in descending order if order specified is descending' do
-      byebug
 
       ordered_shipments = shipment.shipments_ordered_by_items_count('dsc')
 
