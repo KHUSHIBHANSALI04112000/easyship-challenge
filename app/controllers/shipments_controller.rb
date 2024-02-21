@@ -40,7 +40,7 @@ class ShipmentsController < ApplicationController
           message: "Tracking does not exist.",
           type: "BadRequest"
         }
-      }, status: :not_found
+      }, status: 404
     end
   end
 
