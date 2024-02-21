@@ -68,5 +68,29 @@ RSpec.describe ShipmentsController, type: :controller do
       expect(parsed_response["meta"]["message"]).to eq("Tracking does not exist.")
     end
   end
-end
 
+  describe 'GET search for shipments' do
+    context 'when shipment size parameter is present' do
+      before(:all) do
+        @company2 = create(:company)
+        @shipment1 = create(:shipment, company: @company2)
+        @shipment2 = create(:shipment, company: @company2)
+        @shipment_item1 = create(:shipment_item, shipment: @shipment1)
+        @shipment_item2 = create(:shipment_item, shipment: @shipment2)
+      end
+
+      after(:all) do
+        @shipment_item1.destroy
+        @shipment_item2.destroy
+        @shipment1.destroy
+        @shipment2.destroy
+        @company2.destroy
+      end
+
+      it 'returns shipments with the specified size' do
+        get :search, params: { company_id: @company2.id, shipment_size: 1 }
+        expect(JSON.parse(response.body).size).to eq(2)
+      end
+    end
+  end
+end

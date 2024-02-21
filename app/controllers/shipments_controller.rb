@@ -47,8 +47,6 @@ class ShipmentsController < ApplicationController
   end
 
   def search
-    company_shipments = @company.shipments
-
     if params[:shipment_size].present?
       shipments = Shipment.where(company_id: params[:company_id])
                     .joins(:shipment_items)
@@ -66,7 +64,7 @@ class ShipmentsController < ApplicationController
   def get_company
     if params[:company_id]
       begin
-        @company = Company.find(params[:company_id])
+        @company = Company.find(params[:company_id].to_i)
       rescue ActiveRecord::RecordNotFound
         render json: { error: "Company with ID #{params[:company_id]} not found" }, status: 404
       end
@@ -84,10 +82,10 @@ class ShipmentsController < ApplicationController
 
   def get_company_shipments
     if @company
-      @shipments = @company.shipments.where(company_id: params[:company_id])
+      @shipments = @company.shipments.where(company_id: params[:company_id].to_i)
     else
       @shipments = Shipment.find_by(id: params[:id])
     end
-    render json: { error: 'Shipment not found' }, status: :not_found unless @shipments
+    render json: { error: 'Shipment not found' }, status: 404 unless @shipments
   end
 end
