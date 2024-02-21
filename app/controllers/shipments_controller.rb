@@ -19,7 +19,6 @@ class ShipmentsController < ApplicationController
       begin
         @company = Company.find(params[:company_id])
       rescue ActiveRecord::RecordNotFound
-        byebug
         render json: { error: "Company with ID #{params[:company_id]} not found" }, status: 404
       end
     end
