@@ -43,7 +43,7 @@ RSpec.describe ShipmentsController, type: :controller do
       stub_request(:get, "https://api.aftership.com/tracking/2024-01/trackings/#{tracking_id}")
         .to_return(body: File.read('spec/fixtures/aftership/get_success_response.json'), status: 200)
 
-      get :tracking, params: { company_id: company.id, id: shipment.id }
+      get :tracking, params: { company_id: company.id, id: tracking_id }
 
       expected_result = {
         "status": "InTransit",
@@ -64,7 +64,7 @@ RSpec.describe ShipmentsController, type: :controller do
       stub_request(:get, "https://api.aftership.com/tracking/2024-01/trackings/#{tracking_id}")
         .to_return(body: File.read('spec/fixtures/aftership/get_failure_response.json'), status: 404)
 
-      get :tracking, params: { company_id: company.id, id: shipment.id }
+      get :tracking, params: { company_id: company.id, id: tracking_id }
 
       parsed_response = JSON.parse(response.body)
       expect(parsed_response["meta"]["message"]).to eq("Tracking does not exist.")
