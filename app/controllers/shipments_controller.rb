@@ -4,7 +4,7 @@ class ShipmentsController < ApplicationController
   before_action :get_company, :get_shipment, only: [:show]
 
   def index
-    @shipments = Shipment.all
+    @shipments = Shipment.includes(:shipment_items).all
   end
 
   def show

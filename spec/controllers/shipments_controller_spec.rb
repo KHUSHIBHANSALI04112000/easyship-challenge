@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe ShipmentsController, type: :controller do
-  describe 'GET API for show method' do
+  describe "show" do
     let(:company) { create(:company) }
     let(:shipment) { create(:shipment, company: company, destination_country: "USA", origin_country: "HKG") }
 
