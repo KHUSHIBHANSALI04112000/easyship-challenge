@@ -8,8 +8,8 @@ class ShipmentsController < ApplicationController
   end
 
   def show
-    result = transform_shipment_data(@shipment)
-    render json: result
+    @shipment = Shipment.find(params[:id])
+    render 'show', formats: :json
   end
 
   private
