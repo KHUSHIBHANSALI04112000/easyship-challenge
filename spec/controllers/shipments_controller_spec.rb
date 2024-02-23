@@ -12,6 +12,8 @@ RSpec.describe ShipmentsController, type: :controller do
         expect(result["shipment"]["company_id"]).to eq(company.id)
         expect(result["shipment"]["destination_country"]).to eq(shipment.destination_country)
         expect(result["shipment"]["origin_country"]).to eq(shipment.origin_country)
+        expect(result["shipment"]["shipment_items"][0]["description"]).to eq(shipment.shipment_items[0].description)
+        expect(result["shipment"]["shipment_items"][0]["count"]).to eq(shipment.shipment_items.size)
       end
     end
 

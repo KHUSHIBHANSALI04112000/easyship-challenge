@@ -11,7 +11,7 @@ class ShipmentsController < ApplicationController
   def show
     serialized_shipment = ShipmentSerializer.new(@shipment, items_order: params[:items_order]).as_json
 
-    render json: { shipments: serialized_shipment }
+    render json: { shipment: serialized_shipment }
   end
 
   private
