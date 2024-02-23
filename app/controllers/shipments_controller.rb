@@ -10,7 +10,6 @@ class ShipmentsController < ApplicationController
 
   def show
     serialized_shipment = ShipmentSerializer.new(@shipment, items_order: params[:items_order]).as_json
-
     render json: { shipment: serialized_shipment }
   end
 
@@ -40,14 +39,12 @@ class ShipmentsController < ApplicationController
 
   def search
     shipment_size = params[:shipment_size].presence || DEFAULT_SHIPMENT_SIZE
-    shipments = Shipment.where(company_id: params[:company_id])
-                        .joins(:shipment_items)
-                        .group('shipments.id')
-                        .having('COUNT(shipment_items.id) = ?', shipment_size.to_i)
-                        .select('shipments.*')
+    shipments = @shipments.joins(:shipment_items)
+                           .group('shipments.id')
+                           .having('COUNT(shipment_items.id) = ?', shipment_size.to_i)
+                           .select('shipments.*')
 
     shipment_items_collection = shipments.map { |shipment| ShipmentSerializer.new(shipment, items_order: params[:items_order]).as_json }
-
     shipments_hash = { "shipments" => shipment_items_collection }
     render json: shipments_hash
   end
@@ -74,11 +71,7 @@ class ShipmentsController < ApplicationController
   end
 
   def get_company_shipments
-    if @company
-      @shipments = @company.shipments.where(company_id: params[:company_id].to_i)
-    else
-      @shipments = Shipment.find_by(id: params[:id])
-    end
+    @shipments = @company.shipments
     render json: { error: 'Shipment not found' }, status: 404 unless @shipments
   end
 end
