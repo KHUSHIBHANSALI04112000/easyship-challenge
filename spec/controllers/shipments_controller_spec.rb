@@ -60,10 +60,7 @@ RSpec.describe ShipmentsController, type: :controller do
       }
 
       parsed_response = JSON.parse(response.body)
-      expect(parsed_response['status']).to eq(expected_result['status'])
-      expect(parsed_response['current_location']).to eq(expected_result['current_location'])
-      expect(parsed_response['last_checkpoint_message']).to eq(expected_result['last_checkpoint_message'])
-      expect(parsed_response['last_checkpoint_time']).to eq(expected_result['last_checkpoint_time'])
+      expect(parsed_response).to eq(expected_result)
     end
 
     it 'returns an error message if tracking details are not available' do
