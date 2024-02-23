@@ -1,15 +1,17 @@
 require 'shipment_helper'
+
 class ShipmentsController < ApplicationController
   include ShipmentHelper
   before_action :get_company, :get_shipment, only: [:show]
 
   def index
-    @shipments = Shipment.all
+    @shipments = Shipment.includes(:shipment_items).all
   end
 
   def show
-    result = transform_shipment_data(@shipment)
-    render json: result
+    serialized_shipment = ShipmentSerializer.new(@shipment, items_order: params[:items_order]).as_json
+
+    render json: { shipment: serialized_shipment }
   end
 
   def tracking
