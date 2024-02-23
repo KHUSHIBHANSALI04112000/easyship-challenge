@@ -7,9 +7,9 @@ RSpec.describe Shipment, type: :model do
 
     context 'fetch shipments ordered by count with respective description' do
       before do
-        item_1 = create(:shipment_item, description: 'Iphone', shipment: shipment)
-        item_2 = create(:shipment_item, description: 'Macbook air', shipment: shipment)
-        item_3 = create(:shipment_item, description: 'Iphone', shipment: shipment)
+        shipment.shipment_items[0].update(description: "Iphone")
+        shipment.shipment_items[1].update(description: "Macbook air")
+        shipment.shipment_items[2].update(description: "Iphone")  
       end
 
       it 'should return shipments ordered by item count in descending order if order specified is descending' do
