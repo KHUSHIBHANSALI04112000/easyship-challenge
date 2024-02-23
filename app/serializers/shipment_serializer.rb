@@ -7,6 +7,6 @@ class ShipmentSerializer < ActiveModel::Serializer
     end
  
     def shipment_items
-      object.shipments_ordered_by_items_count(@sort_order)
+      object.group_shipment_items_by_description_and_sort_order(@sort_order)
     end
 end
