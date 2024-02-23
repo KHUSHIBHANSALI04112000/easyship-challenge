@@ -13,17 +13,11 @@ class ShipmentsController < ApplicationController
 
   def tracking
     api_key = 'dummy_key'
-    tracking_id = Shipment.find_by(id: params[:id].to_i).tracking_number
-    response = HTTParty.get(
-      "https://api.aftership.com/tracking/2024-01/trackings/#{tracking_id}",
-      headers: {
-        'Content-Type' => 'application/json',
-        'aftership-api-key' => api_key
-      }
-    )
-  
-    if response.code == 200
-      result = JSON.parse(response.body)
+    service = TrackingService.new(api_key, params[:id])
+    response = service.call
+    result = JSON.parse(response)
+
+    if result["meta"]["code"] == 200
       render json: {
         status: result["data"]["tracking"]["tag"],
         current_location: result["data"]["tracking"]["checkpoints"][-1]["location"],
@@ -44,21 +38,23 @@ class ShipmentsController < ApplicationController
   private
 
   def get_company
-    if params[:company_id]
-      begin
-        @company = Company.find(params[:company_id])
-      rescue ActiveRecord::RecordNotFound
-        render json: { error: "Company with ID #{params[:company_id]} not found" }, status: 404
-      end
-    end
+    return unless params[:company_id]
+
+    @company = Company.find_by(id: params[:company_id])
+    return unless @company.nil?
+
+    render json: { error: "Company with ID #{params[:company_id]} not found" }, status: 404
   end
 
   def get_shipment
-    if @company
-      @shipment = @company.shipments.find_by(id: params[:id])
-    else
-      @shipment = Shipment.find_by(id: params[:id])
-    end
-    render json: { error: 'Shipment not found' }, status: 404 unless @shipment
+    @shipment = if @company
+                  @company.shipments.find_by(id: params[:id])
+                else
+                  Shipment.find_by(id: params[:id])
+                end
+
+    return unless @shipment.nil?
+
+    render json: { error: 'Shipment not found' }, status: 404
   end
 end
