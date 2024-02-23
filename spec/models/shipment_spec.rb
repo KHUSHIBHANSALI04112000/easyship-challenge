@@ -49,6 +49,3 @@ RSpec.describe Shipment, type: :model do
     end
   end
 end
-
-
-
