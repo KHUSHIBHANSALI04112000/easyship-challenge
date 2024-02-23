@@ -38,23 +38,21 @@ class ShipmentsController < ApplicationController
   private
 
   def get_company
-    return unless params[:company_id]
-
-    @company = Company.find_by(id: params[:company_id])
-    return unless @company.nil?
-
-    render json: { error: "Company with ID #{params[:company_id]} not found" }, status: 404
+    if params[:company_id]
+      begin
+        @company = Company.find(params[:company_id])
+      rescue ActiveRecord::RecordNotFound
+        render json: { error: "Company with ID #{params[:company_id]} not found" }, status: 404
+      end
+    end
   end
 
   def get_shipment
-    @shipment = if @company
-                  @company.shipments.find_by(id: params[:id])
-                else
-                  Shipment.find_by(id: params[:id])
-                end
-
-    return unless @shipment.nil?
-
-    render json: { error: 'Shipment not found' }, status: 404
+    if @company
+      @shipment = @company.shipments.find_by(id: params[:id])
+    else
+      @shipment = Shipment.find_by(id: params[:id])
+    end
+    render json: { error: 'Shipment not found' }, status: 404 unless @shipment
   end
 end
