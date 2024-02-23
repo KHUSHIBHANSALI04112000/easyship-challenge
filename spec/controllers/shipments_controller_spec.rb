@@ -13,13 +13,22 @@ RSpec.describe ShipmentsController, type: :controller do
   describe 'GET API for show method' do
     context 'when shipment exists' do
       it 'returns the shipment details' do
+        formatted_time = shipment.created_at.strftime("%a, %d %b %Y %H:%M:%S.%L %z %Z")
+        parsed_formatted_time = Time.parse(formatted_time).strftime("%Y-%m-%dT%H:%M:%S.%LZ")
+        expected_result = {
+          "shipment" => {
+            "company_id" => company.id,
+            "destination_country" => shipment.destination_country,
+            "origin_country" => shipment.origin_country,
+            "tracking_number" => shipment.tracking_number,
+            "slug" => shipment.slug,
+            "created_at" => parsed_formatted_time,
+            "items" => [{ "description" => "Iphone", "count" => 3 }]
+          }
+        }
         get :show, params: { company_id: company.id, id: shipment.id }
         result = JSON.parse(response.body)
-        expect(result['shipment']['company_id']).to eq(company.id)
-        expect(result['shipment']['destination_country']).to eq(shipment.destination_country)
-        expect(result['shipment']['origin_country']).to eq(shipment.origin_country)
-        expect(result['shipment']['shipment_items'][0]['description']).to eq(shipment.shipment_items[0].description)
-        expect(result['shipment']['shipment_items'][0]['count']).to eq(shipment.shipment_items.size)
+        expect(result).to eq(expected_result)
       end
     end
 
@@ -60,10 +69,7 @@ RSpec.describe ShipmentsController, type: :controller do
       }
 
       parsed_response = JSON.parse(response.body)
-      expect(parsed_response['status']).to eq(expected_result['status'])
-      expect(parsed_response['current_location']).to eq(expected_result['current_location'])
-      expect(parsed_response['last_checkpoint_message']).to eq(expected_result['last_checkpoint_message'])
-      expect(parsed_response['last_checkpoint_time']).to eq(expected_result['last_checkpoint_time'])
+      expect(parsed_response).to eq(expected_result)
     end
 
     it 'returns an error message if tracking details are not available' do
