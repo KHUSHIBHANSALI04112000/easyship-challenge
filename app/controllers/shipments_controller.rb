@@ -9,8 +9,8 @@ class ShipmentsController < ApplicationController
   end
 
   def show
-    serialized_shipment = ShipmentSerializer.new(@shipment, items_order: params[:items_order]).as_json
-    render json: { shipment: serialized_shipment }
+    serialized_shipment = ShipmentSerializer.new(@shipment).as_json
+    render json: { shipment: serialized_shipment}
   end
 
   def tracking
@@ -44,7 +44,7 @@ class ShipmentsController < ApplicationController
                            .having('COUNT(shipment_items.id) = ?', shipment_size.to_i)
                            .select('shipments.*')
 
-    shipment_items_collection = shipments.map { |shipment| ShipmentSerializer.new(shipment, items_order: params[:items_order]).as_json }
+    shipment_items_collection = shipments.map { |shipment| ShipmentSerializer.new(shipment).as_json}
     shipments_hash = { "shipments" => shipment_items_collection }
     render json: shipments_hash
   end
