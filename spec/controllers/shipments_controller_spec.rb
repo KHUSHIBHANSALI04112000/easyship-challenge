@@ -88,11 +88,11 @@ RSpec.describe ShipmentsController, type: :controller do
     context 'when shipment size parameter is present' do
 
       it 'returns shipments with the specified size' do
-        company2 = create(:company)
+        company2 = create(:company, :with_shipments)
         shipment1 = create(:shipment, company: company2)
         get :search, params: { company_id: company2.id, shipment_size: 3}
         result = JSON.parse(response.body)
-        expect(result["shipments"].size).to eq(1)
+        expect(result["shipments"].size).to eq(3)
       end
     end
   end
