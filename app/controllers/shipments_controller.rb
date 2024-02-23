@@ -2,6 +2,7 @@ class ShipmentsController < ApplicationController
   before_action :get_company, only: [:show, :search]
   before_action :get_shipment, only: [:show]
   before_action :get_company_shipments, only: [:search]
+  DEFAULT_SHIPMENT_SIZE = 10
 
   def index
     @shipments = Shipment.includes(:shipment_items).all
@@ -38,24 +39,18 @@ class ShipmentsController < ApplicationController
   end
 
   def search
-    if params[:shipment_size].present?
-      shipments = Shipment.where(company_id: params[:company_id])
-                    .joins(:shipment_items)
-                    .group('shipments.id')
-                    .having('COUNT(shipment_items.id) = ?', params[:shipment_size].to_i)
-                    .select('shipments.*')
-    end
+    shipment_size = params[:shipment_size].presence || DEFAULT_SHIPMENT_SIZE
+    shipments = Shipment.where(company_id: params[:company_id])
+                        .joins(:shipment_items)
+                        .group('shipments.id')
+                        .having('COUNT(shipment_items.id) = ?', shipment_size.to_i)
+                        .select('shipments.*')
 
-    shipments_hash = {}
-    shipment_items_collection= []
-    shipments.each  do |shipment|
-      shipment_items_collection <<   shipment_data(shipment)
-    end
-    shipments_hash["shipments"] = shipment_items_collection
+    shipment_items_collection = shipments.map { |shipment| ShipmentSerializer.new(shipment, items_order: params[:items_order]).as_json }
 
+    shipments_hash = { "shipments" => shipment_items_collection }
     render json: shipments_hash
   end
-
 
   private
 
