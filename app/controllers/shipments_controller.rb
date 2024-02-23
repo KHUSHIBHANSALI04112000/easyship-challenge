@@ -1,32 +1,25 @@
-require 'shipment_helper'
 class ShipmentsController < ApplicationController
-  include ShipmentHelper
   before_action :get_company, only: [:show, :search]
   before_action :get_shipment, only: [:show]
   before_action :get_company_shipments, only: [:search]
 
   def index
-    @shipments = Shipment.all
+    @shipments = Shipment.includes(:shipment_items).all
   end
 
   def show
-    result = transform_shipment_data(@shipment)
-    render json: result
+    serialized_shipment = ShipmentSerializer.new(@shipment, items_order: params[:items_order]).as_json
+
+    render json: { shipment: serialized_shipment }
   end
 
   def tracking
     api_key = 'dummy_key'
-    tracking_id = Shipment.find_by(id: params[:id].to_i).tracking_number
-    response = HTTParty.get(
-      "https://api.aftership.com/tracking/2024-01/trackings/#{tracking_id}",
-      headers: {
-        'Content-Type' => 'application/json',
-        'aftership-api-key' => api_key
-      }
-    )
-  
-    if response.code == 200
-      result = JSON.parse(response.body)
+    service = TrackingService.new(api_key, params[:id])
+    response = service.call
+    result = JSON.parse(response)
+
+    if result["meta"]["code"] == 200
       render json: {
         status: result["data"]["tracking"]["tag"],
         current_location: result["data"]["tracking"]["checkpoints"][-1]["location"],
