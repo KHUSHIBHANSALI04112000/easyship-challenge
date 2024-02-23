@@ -1,7 +1,4 @@
-require 'shipment_helper'
-
 class ShipmentsController < ApplicationController
-  include ShipmentHelper
   before_action :get_company, :get_shipment, only: [:show]
 
   def index
