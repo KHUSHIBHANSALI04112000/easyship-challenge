@@ -1,14 +1,17 @@
 require 'rails_helper'
 
 RSpec.describe ShipmentsController, type: :controller do
-  describe "show" do
-    let(:company) { create(:company) }
-    let(:shipment) { create(:shipment, company: company, destination_country: "USA", origin_country: "HKG") }
+  describe "#show" do
+    let!(:company) { create(:company) }
+    let!(:shipment) { create(:shipment, company: company, destination_country: "USA", origin_country: "HKG") }
+    let!(:shipment_items) do 
+      create_list(:shipment_item , 3 , description: 'Iphone', shipment: shipment)
+    end
+
 
     context 'when shipment exists' do
       it 'returns the shipment details' do
-        formatted_time = shipment.created_at.strftime("%a, %d %b %Y %H:%M:%S.%L %z %Z")
-        parsed_formatted_time = Time.parse(formatted_time).strftime("%Y-%m-%dT%H:%M:%S.%LZ")
+        parsed_formatted_time = shipment.created_at.strftime("%Y-%m-%dT%H:%M:%S.%LZ")
         expected_result = {
           "shipment" => {
             "company_id" => company.id,
