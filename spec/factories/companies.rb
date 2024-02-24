@@ -1,5 +1,5 @@
 FactoryBot.define do
     factory :company do
-      name { "Sample Company" }
+      name { Faker::Lorem.word } 
     end
 end

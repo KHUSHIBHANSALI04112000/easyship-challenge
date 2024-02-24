@@ -1,5 +1,7 @@
+
 FactoryBot.define do
-    factory :shipment_item do
-      association :shipment
-    end
+  factory :shipment_item do
+    description { Faker::Lorem.word } 
+    association :shipment
+  end
 end
