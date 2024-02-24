@@ -2,19 +2,18 @@ require 'rails_helper'
 require 'webmock/rspec'
 
 RSpec.describe ShipmentsController, type: :controller do
-  let(:company) { create(:company) }
-  let(:shipment) do
-    create(:shipment, company: company,
-                      tracking_number: SecureRandom.random_number(100_000..999_999),
-                      destination_country: 'USA',
-                      origin_country: 'HKG')
-  end
+  describe "#show" do
+    let!(:company) { create(:company) }
+    let!(:shipment) { create(:shipment, company: company, destination_country: "USA", origin_country: "HKG") }
+    let!(:shipment_items) do 
+      create_list(:shipment_item , 3 , description: 'Iphone', shipment: shipment)
+    end
+
 
   describe 'GET API for show method' do
     context 'when shipment exists' do
       it 'returns the shipment details' do
-        formatted_time = shipment.created_at.strftime("%a, %d %b %Y %H:%M:%S.%L %z %Z")
-        parsed_formatted_time = Time.parse(formatted_time).strftime("%Y-%m-%dT%H:%M:%S.%LZ")
+        parsed_formatted_time = shipment.created_at.strftime("%Y-%m-%dT%H:%M:%S.%LZ")
         expected_result = {
           "shipment" => {
             "company_id" => company.id,
