@@ -14,7 +14,6 @@ class ShipmentsController < ApplicationController
     api_key = 'dummy_key'
     service = TrackingService.new(api_key, params[:id])
     response = service.call
-    byebug
     render json: response
   end
 

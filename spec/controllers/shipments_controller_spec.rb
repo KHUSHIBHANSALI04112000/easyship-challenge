@@ -57,7 +57,6 @@ RSpec.describe ShipmentsController, type: :controller do
           }).to_return(body: File.read('spec/fixtures/aftership/get_success_response.json'), status: 200)
       
       get :tracking, params: { company_id: company.id, id: tracking_id  }
-      byebug
 
       expected_result = {
         'status' => 'InTransit',
