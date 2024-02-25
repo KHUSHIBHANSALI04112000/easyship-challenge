@@ -1,9 +1,6 @@
 FactoryBot.define do
   factory :shipment do
-    association :company, factory: :company
-
-    after(:create) do |shipment|
-      create_list(:shipment_item, 3, description: "Iphone",shipment: shipment)
-    end
+    tracking_number {SecureRandom.random_number(1000000)}
+    association :company
   end
 end

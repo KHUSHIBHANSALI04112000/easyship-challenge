@@ -17,24 +17,8 @@ class ShipmentsController < ApplicationController
     api_key = 'dummy_key'
     service = TrackingService.new(api_key, params[:id])
     response = service.call
-    result = JSON.parse(response)
-
-    if result["meta"]["code"] == 200
-      render json: {
-        status: result["data"]["tracking"]["tag"],
-        current_location: result["data"]["tracking"]["checkpoints"][-1]["location"],
-        last_checkpoint_message: result["data"]["tracking"]["checkpoints"][-1]["message"],
-        last_checkpoint_time: result["data"]["tracking"]["checkpoints"][-1]["checkpoint_time"]
-      }
-    else
-      render json: {
-        meta: {
-          code: 4004,
-          message: "Tracking does not exist.",
-          type: "BadRequest"
-        }
-      }, status: 404
-    end
+    byebug
+    render json: response
   end
 
   def search
