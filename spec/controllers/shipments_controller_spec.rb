@@ -3,23 +3,24 @@ require 'webmock/rspec'
 
 RSpec.describe ShipmentsController, type: :controller do
   let!(:company) { create(:company) }
-    let!(:shipment) { create(:shipment, company: company, destination_country: "USA", origin_country: "HKG") }
-    let!(:shipment_items) do 
-      create_list(:shipment_item , 3 , description: 'Iphone', shipment: shipment)
-    end
-  describe "#show" do
+  let!(:shipment) { create(:shipment, company: company, destination_country: 'USA', origin_country: 'HKG') }
+  let!(:shipment_items) do
+    create_list(:shipment_item, 3, description: 'Iphone', shipment: shipment)
+  end
+
+  describe '#show' do
     context 'when shipment exists' do
       it 'returns the shipment details' do
-        parsed_formatted_time = shipment.created_at.strftime("%Y-%m-%dT%H:%M:%S.%LZ")
+        parsed_formatted_time = shipment.created_at.strftime('%Y-%m-%dT%H:%M:%S.%LZ')
         expected_result = {
-          "shipment" => {
-            "company_id" => company.id,
-            "destination_country" => shipment.destination_country,
-            "origin_country" => shipment.origin_country,
-            "tracking_number" => shipment.tracking_number,
-            "slug" => shipment.slug,
-            "created_at" => parsed_formatted_time,
-            "items" => [{ "description" => "Iphone", "count" => 3 }]
+          'shipment' => {
+            'company_id' => company.id,
+            'destination_country' => shipment.destination_country,
+            'origin_country' => shipment.origin_country,
+            'tracking_number' => shipment.tracking_number,
+            'slug' => shipment.slug,
+            'created_at' => parsed_formatted_time,
+            'items' => [{ 'description' => 'Iphone', 'count' => 3 }]
           }
         }
         get :show, params: { company_id: company.id, id: shipment.id }
@@ -46,7 +47,7 @@ RSpec.describe ShipmentsController, type: :controller do
   describe 'GET tracking information' do
     it 'returns tracking information if details available' do
       tracking_id = shipment.tracking_number
-      stub_request(:get, "https://api.aftership.com/tracking/2024-01/trackings/#{tracking_id }")
+      stub_request(:get, "https://api.aftership.com/tracking/2024-01/trackings/#{tracking_id}")
         .with(
           headers: {
             'Accept' => '*/*',
@@ -54,9 +55,10 @@ RSpec.describe ShipmentsController, type: :controller do
             'Aftership-Api-Key' => 'dummy_key',
             'Content-Type' => 'application/json',
             'User-Agent' => 'Ruby'
-          }).to_return(body: File.read('spec/fixtures/aftership/get_success_response.json'), status: 200)
-      
-      get :tracking, params: { company_id: company.id, id: tracking_id  }
+          }
+        ).to_return(body: File.read('spec/fixtures/aftership/get_success_response.json'), status: 200)
+
+      get :tracking, params: { company_id: company.id, id: tracking_id }
 
       expected_result = {
         'status' => 'InTransit',
@@ -69,8 +71,8 @@ RSpec.describe ShipmentsController, type: :controller do
       expect(parsed_response).to eq(expected_result)
     end
 
-    it 'returns an appropriate error message  for a 404 response code.' do
-      tracking_id =  shipment.tracking_number
+    it 'returns an appropriate error message for a 404 response code' do
+      tracking_id = shipment.tracking_number
       stub_request(:get, "https://api.aftership.com/tracking/2024-01/trackings/#{tracking_id}")
         .to_return(body: File.read('spec/fixtures/aftership/get_failure_response.json'), status: 404)
 
@@ -81,15 +83,27 @@ RSpec.describe ShipmentsController, type: :controller do
     end
   end
 
-  describe 'GET search for shipments' do
+  describe 'POST search for shipments' do
     context 'when shipment size parameter is present' do
-
       it 'returns shipments with the specified size' do
-        company2 = create(:company, :with_shipments)
+        company2 = create(:company)
         shipment1 = create(:shipment, company: company2)
-        get :search, params: { company_id: company2.id, shipment_size: 3}
+        shipment_items1 = create_list(:shipment_item, 3, description: 'Iphone', shipment: shipment1)
+        parsed_formatted_time = shipment1.created_at.strftime('%Y-%m-%dT%H:%M:%S.%LZ')
+        expected_result = [
+          {
+            'company_id' => company2.id,
+            'destination_country' => shipment1.destination_country,
+            'origin_country' => shipment1.origin_country,
+            'tracking_number' => shipment1.tracking_number,
+            'slug' => shipment1.slug,
+            'created_at' => parsed_formatted_time,
+            'items' => [{ 'description' => 'Iphone', 'count' => 3 }]
+          }
+        ]
+        post :search, params: { company_id: company2.id, shipment_size: 3 }
         result = JSON.parse(response.body)
-        expect(result["shipments"].size).to eq(3)
+        expect(result).to eq(expected_result)
       end
     end
   end
