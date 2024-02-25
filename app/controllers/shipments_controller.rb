@@ -55,6 +55,6 @@ class ShipmentsController < ApplicationController
 
   def get_company_shipments
     @shipments = @company.shipments
-    render json: { error: 'Shipment not found' }, status: 404 unless @shipments
+    render json: @shipments || []
   end
 end
