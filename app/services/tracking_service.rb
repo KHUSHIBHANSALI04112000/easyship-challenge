@@ -26,7 +26,6 @@ class TrackingService
     when 200
       render_successful_tracking_response(JSON.parse(response.body))
     when 404
-      byebug
       render_error_response(I18n.t('errors.tracking_not_found.code'), I18n.t('errors.tracking_not_found.message'), I18n.t('errors.tracking_not_found.type'))
     when 500
       render_error_response(I18n.t('errors.internal_server_error.code'),I18n.t('errors.internal_server_error.message'), I18n.t('errors.internal_server_error.type'))
@@ -60,7 +59,6 @@ class TrackingService
   end
 
   def render_error_response(code, message, type)
-    byebug
     {
       meta: {
         code: code,
