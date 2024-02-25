@@ -2,15 +2,12 @@ require 'rails_helper'
 require 'webmock/rspec'
 
 RSpec.describe ShipmentsController, type: :controller do
-  describe "#show" do
-    let!(:company) { create(:company) }
+  let!(:company) { create(:company) }
     let!(:shipment) { create(:shipment, company: company, destination_country: "USA", origin_country: "HKG") }
     let!(:shipment_items) do 
       create_list(:shipment_item , 3 , description: 'Iphone', shipment: shipment)
     end
-
-
-  describe 'GET API for show method' do
+  describe "#show" do
     context 'when shipment exists' do
       it 'returns the shipment details' do
         parsed_formatted_time = shipment.created_at.strftime("%Y-%m-%dT%H:%M:%S.%LZ")
@@ -48,7 +45,8 @@ RSpec.describe ShipmentsController, type: :controller do
 
   describe 'GET tracking information' do
     it 'returns tracking information if details available' do
-      stub_request(:get, "https://api.aftership.com/tracking/2024-01/trackings/#{shipment.tracking_number}")
+      tracking_id = shipment.tracking_number
+      stub_request(:get, "https://api.aftership.com/tracking/2024-01/trackings/#{tracking_id }")
         .with(
           headers: {
             'Accept' => '*/*',
@@ -58,7 +56,8 @@ RSpec.describe ShipmentsController, type: :controller do
             'User-Agent' => 'Ruby'
           }).to_return(body: File.read('spec/fixtures/aftership/get_success_response.json'), status: 200)
       
-      get :tracking, params: { company_id: company.id, id: shipment.tracking_number }
+      get :tracking, params: { company_id: company.id, id: tracking_id  }
+      byebug
 
       expected_result = {
         'status' => 'InTransit',
@@ -71,8 +70,8 @@ RSpec.describe ShipmentsController, type: :controller do
       expect(parsed_response).to eq(expected_result)
     end
 
-    it 'returns an error message if tracking details are not available' do
-      tracking_id = shipment.tracking_number
+    it 'returns an appropriate error message  for a 404 response code.' do
+      tracking_id =  shipment.tracking_number
       stub_request(:get, "https://api.aftership.com/tracking/2024-01/trackings/#{tracking_id}")
         .to_return(body: File.read('spec/fixtures/aftership/get_failure_response.json'), status: 404)
 
@@ -83,4 +82,3 @@ RSpec.describe ShipmentsController, type: :controller do
     end
   end
 end
-
