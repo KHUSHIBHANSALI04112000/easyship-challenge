@@ -6,7 +6,15 @@ class ShipmentSerializer < ActiveModel::Serializer
     build_items_payload
   end
 
+  def created_at
+    time_format
+  end
+
   private
+
+  def time_format
+    DateTime.parse(object.created_at.to_s).strftime("%Y %B %d at %I:%M %p (%A)")
+  end
 
   def build_items_payload
     items = object.shipment_items.group(:description).count.with_indifferent_access

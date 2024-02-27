@@ -11,7 +11,7 @@ RSpec.describe ShipmentsController, type: :controller do
 
     context 'when shipment exists' do
       it 'returns the shipment details' do
-        parsed_formatted_time = shipment.created_at.strftime("%Y-%m-%dT%H:%M:%S.%LZ")
+        parsed_formatted_time = DateTime.parse(shipment.created_at.to_s).strftime("%Y %B %d at %I:%M %p (%A)")
         expected_result = {
           "shipment" => {
             "company_id" => company.id,
