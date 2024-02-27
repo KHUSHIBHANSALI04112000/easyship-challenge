@@ -11,7 +11,7 @@ RSpec.describe ShipmentsController, type: :controller do
   describe '#show' do
     context 'when shipment exists' do
       it 'returns the shipment details' do
-        parsed_formatted_time = shipment.created_at.strftime('%Y-%m-%dT%H:%M:%S.%LZ')
+        parsed_formatted_time = DateTime.parse(shipment.created_at.to_s).strftime("%Y %B %d at %I:%M %p (%A)")
         expected_result = {
           'shipment' => {
             'company_id' => company.id,
@@ -55,16 +55,15 @@ RSpec.describe ShipmentsController, type: :controller do
             'Aftership-Api-Key' => 'dummy_key',
             'Content-Type' => 'application/json',
             'User-Agent' => 'Ruby'
-          }
-        ).to_return(body: File.read('spec/fixtures/aftership/get_success_response.json'), status: 200)
-
-      get :tracking, params: { company_id: company.id, id: tracking_id }
-
+          }).to_return(body: File.read('spec/fixtures/aftership/get_success_response.json'), status: 200)
+      
+      get :tracking, params: { company_id: company.id, id: tracking_id  }
+      expected_result_formatted_time = DateTime.parse('2016-02-01T13:00:00'.to_s).strftime("%Y %B %d at %I:%M %p (%A)")
       expected_result = {
         'status' => 'InTransit',
         'current_location' => 'Singapore Main Office, Singapore',
         'last_checkpoint_message' => 'Received at Operations Facility',
-        'last_checkpoint_time' => '2016-02-01T13:00:00'
+        'last_checkpoint_time' => expected_result_formatted_time
       }
 
       parsed_response = JSON.parse(response.body)
