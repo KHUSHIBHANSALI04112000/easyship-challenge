@@ -35,12 +35,12 @@ class TrackingService
   def render_successful_tracking_response(result)
     if result["data"] && result["data"]["tracking"] && result["data"]["tracking"]["checkpoints"]
       last_checkpoint = result["data"]["tracking"]["checkpoints"][-1]
-    
+      
       if last_checkpoint
         status = result["data"]["tracking"]["tag"]
         current_location = last_checkpoint["location"]
         last_checkpoint_message = last_checkpoint["message"]
-        last_checkpoint_time = last_checkpoint["checkpoint_time"]
+        last_checkpoint_time = DateTime.parse(last_checkpoint["checkpoint_time"].to_s).strftime("%Y %B %d at %I:%M %p (%A)")
     
         {
           status: status,
