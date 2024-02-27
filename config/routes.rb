@@ -4,5 +4,6 @@ Rails.application.routes.draw do
   end
   resources :shipments, only: [:index, :show]
   get '/companies/:company_id/shipments/:id/tracking', to: 'shipments#tracking'
+  post '/companies/:company_id/shipments/search', to: 'shipments#search'
   # For details on the DSL available within this file, see https://guides.rubyonrails.org/routing.html
 end
