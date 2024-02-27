@@ -6,6 +6,8 @@ gem 'sqlite3'
 gem 'active_model_serializers'
 gem 'puma'
 gem 'jbuilder'
+gem 'webmock'
+gem 'httparty'
 
 group :development, :test do
   gem 'byebug', platform: :mri

@@ -1,14 +1,13 @@
 require 'rails_helper'
+require 'webmock/rspec'
 
 RSpec.describe ShipmentsController, type: :controller do
-  describe "#show" do
-    let!(:company) { create(:company) }
+  let!(:company) { create(:company) }
     let!(:shipment) { create(:shipment, company: company, destination_country: "USA", origin_country: "HKG") }
     let!(:shipment_items) do 
       create_list(:shipment_item , 3 , description: 'Iphone', shipment: shipment)
     end
-
-
+  describe "#show" do
     context 'when shipment exists' do
       it 'returns the shipment details' do
         parsed_formatted_time = DateTime.parse(shipment.created_at.to_s).strftime("%Y %B %d at %I:%M %p (%A)")
@@ -30,23 +29,55 @@ RSpec.describe ShipmentsController, type: :controller do
     end
 
     context 'when shipment does not exist' do
-      before do
-        get :show, params: { company_id: company.id, id: 1900002372473247 }
-      end
-
       it 'returns an error message' do
+        get :show, params: { company_id: company.id, id: 1_900_002_372_473_247 }
         expect(JSON.parse(response.body)['error']).to eq('Shipment not found')
       end
     end
 
     context 'when company does not exist' do
-      before do
-        get :show, params: { company_id: 108999999, id: shipment.id }
-      end
-
       it 'returns an error message' do
+        get :show, params: { company_id: 108_999_999, id: shipment.id }
         expect(JSON.parse(response.body)['error']).to eq("Company with ID 108999999 not found")
       end
+    end
+  end
+
+  describe 'GET tracking information' do
+    it 'returns tracking information if details available' do
+      tracking_id = shipment.tracking_number
+      stub_request(:get, "https://api.aftership.com/tracking/2024-01/trackings/#{tracking_id }")
+        .with(
+          headers: {
+            'Accept' => '*/*',
+            'Accept-Encoding' => 'gzip;q=1.0,deflate;q=0.6,identity;q=0.3',
+            'Aftership-Api-Key' => 'dummy_key',
+            'Content-Type' => 'application/json',
+            'User-Agent' => 'Ruby'
+          }).to_return(body: File.read('spec/fixtures/aftership/get_success_response.json'), status: 200)
+      
+      get :tracking, params: { company_id: company.id, id: tracking_id  }
+      expected_result_formatted_time = DateTime.parse('2016-02-01T13:00:00'.to_s).strftime("%Y %B %d at %I:%M %p (%A)")
+      expected_result = {
+        'status' => 'InTransit',
+        'current_location' => 'Singapore Main Office, Singapore',
+        'last_checkpoint_message' => 'Received at Operations Facility',
+        'last_checkpoint_time' => expected_result_formatted_time
+      }
+
+      parsed_response = JSON.parse(response.body)
+      expect(parsed_response).to eq(expected_result)
+    end
+
+    it 'returns an appropriate error message  for a 404 response code.' do
+      tracking_id =  shipment.tracking_number
+      stub_request(:get, "https://api.aftership.com/tracking/2024-01/trackings/#{tracking_id}")
+        .to_return(body: File.read('spec/fixtures/aftership/get_failure_response.json'), status: 404)
+
+      get :tracking, params: { company_id: company.id, id: tracking_id }
+
+      parsed_response = JSON.parse(response.body)
+      expect(parsed_response['meta']['message']).to eq('Tracking does not exist.')
     end
   end
 end

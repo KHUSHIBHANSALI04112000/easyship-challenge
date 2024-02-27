@@ -10,6 +10,13 @@ class ShipmentsController < ApplicationController
     render json: { shipment: serialized_shipment}
   end
 
+  def tracking
+    api_key = 'dummy_key'
+    service = TrackingService.new(api_key, params[:id])
+    response = service.call
+    render json: response
+  end
+
   private
 
   def get_company
