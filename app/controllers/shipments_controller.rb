@@ -55,6 +55,6 @@ class ShipmentsController < ApplicationController
 
   def get_company_shipments
     @shipments = @company.shipments
-    render json: @shipments || []
+    render json: [] if !@shipments.present?
   end
 end

@@ -88,8 +88,9 @@ RSpec.describe ShipmentsController, type: :controller do
         company2 = create(:company)
         shipment1 = create(:shipment, company: company2)
         shipment_items1 = create_list(:shipment_item, 3, description: 'Iphone', shipment: shipment1)
-        parsed_formatted_time = shipment1.created_at.strftime('%Y-%m-%dT%H:%M:%S.%LZ')
-        expected_result = [
+        parsed_formatted_time = parsed_formatted_time = DateTime.parse(shipment.created_at.to_s).strftime("%Y %B %d at %I:%M %p (%A)")
+        expected_result = {}
+        expected_array = [
           {
             'company_id' => company2.id,
             'destination_country' => shipment1.destination_country,
@@ -100,7 +101,10 @@ RSpec.describe ShipmentsController, type: :controller do
             'items' => [{ 'description' => 'Iphone', 'count' => 3 }]
           }
         ]
-        post :search, params: { company_id: company2.id, shipment_size: 3 }
+        expected_result[:shipments] = expected_array
+        expected_result = JSON.parse(expected_result.to_json)
+        valid_params = { shipment_size: 3 }.to_json
+        post :search, params: JSON.parse(valid_params).merge(company_id: company2.id)
         result = JSON.parse(response.body)
         expect(result).to eq(expected_result)
       end
